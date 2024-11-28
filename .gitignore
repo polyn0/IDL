@@ -1,0 +1,11 @@
+*.jsonl
+check.py
+
+
+/results
+# /data
+/before
+/dump
+
+/__pycache__
+

@@ -1,0 +1,1 @@
+accelerate launch inference_.py
