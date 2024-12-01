@@ -33,15 +33,15 @@ MODEL_CARD={
     'gpt_1.3B': 'EleutherAI/gpt-neo-1.3B'
 }
 
-UNK = [
-    "Unknown",
+UNK = {
+    "Cannot answer",
     "Cannot be determined",
+    "Can't answer",
     "Can't be determined",
     "Not answerable",
-    "Not known",
     "Not enough info",
     "Not enough information",
-    "Cannot answer",
-    "Can't answer",
+    "Not known",
     "Undetermined",
-]
+    "Unknown",
+}
