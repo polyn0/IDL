@@ -110,7 +110,7 @@ def main():
 
     test_dataset=pd.read_csv(f'./data/bbq.csv')
     if DEBUG:
-        test_dataset = test_dataset[:10] # for testing
+        test_dataset = test_dataset.sample(n=1000, random_state=seed, ignore_index=True)
 
     augment_test_dataset = get_llm_input(test_dataset, args.q_ver)
 
@@ -147,7 +147,7 @@ def main():
         results=post_processing_total(outputs, augment_test_dataset)            
         augment_test_dataset[f'{m}_outputs']=outputs
         augment_test_dataset[f'{m}_results']=results
-        save_dataset=augment_test_dataset[['example_id', 'question_index', 'question_polarity', 'context_condition','context','question', 'ans0', 'ans1', 'ans2', 'label', f'{m}_outputs', f'{m}_results']]
+        save_dataset=augment_test_dataset[['example_id', 'question_index', 'question_polarity', 'context_condition', 'category', 'context','question', 'ans0', 'ans1', 'ans2', 'label', f'{m}_outputs', f'{m}_results']]
 
         # cal accuracy
         save_dataset['label']=save_dataset['label'].astype(int)
@@ -156,7 +156,8 @@ def main():
         final_acc[m]=acc
 
         file_path = f'./results/{m}.csv'
-
+        if not os.path.exists('./results/'):
+            os.makedirs('./results/')  
         print(f"save path to...: {file_path}")
         save_dataset.to_csv(file_path)
         print("================\n ACC: ", final_acc)
