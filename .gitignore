@@ -1,5 +1,6 @@
 *.jsonl
 check.py
+personal.py
 
 /data/*
 !data/bbq.csv
