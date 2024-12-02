@@ -30,7 +30,8 @@ MODEL_CARD={
     'GPT3.5' : 'gpt-3.5-turbo-0125',
     'GPT4' : 'gpt-4-1106-preview',
     'gpt_2.7B': 'EleutherAI/gpt-neo-2.7B',
-    'gpt_1.3B': 'EleutherAI/gpt-neo-1.3B'
+    'gpt_1.3B': 'EleutherAI/gpt-neo-1.3B',
+    'gemini' : 'gemini-1.5-flash'
 }
 
 UNK = {

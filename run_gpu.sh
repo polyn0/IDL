@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # models to run
-MODEL_NAMES="gemini"
+MODEL_NAMES="T0_3B gpt_1.3B"
 
 
-python inference.py \
+accelerate launch inference_gpu.py \
     --model_name_list $MODEL_NAMES
 
 

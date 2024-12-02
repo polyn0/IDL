@@ -2,11 +2,15 @@ import torch
 import transformers
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, OPTForCausalLM, LlamaForCausalLM, GPTNeoForCausalLM
 from openai import OpenAI
+import google.generativeai as genai
+from google.generativeai.types import safety_types
+import time
 
 import re
 import logging
 
 from prompt import *
+from personal import *
 
 
 def llm_loading_gpu(model_name, accelerator):
@@ -92,6 +96,75 @@ def llm_loading(model_name, gpu_num):
     logging.info(f"{model_name} loading finished...")   
 
     return model, tokenizer
+
+
+
+
+class GeminiAgent():
+    def __init__(self, model_name):
+        
+        self.model_name = model_name
+        
+        GOOGLE_API_KEY=GEMINI_KEY
+        genai.configure(api_key=GOOGLE_API_KEY)
+
+        safety_settings=[
+            {
+                "category": category,
+                "threshold": safety_types.HarmBlockThreshold.BLOCK_NONE,
+            } for category in safety_types._HARM_CATEGORIES 
+        ]
+
+        self.model = genai.GenerativeModel(model_name,safety_settings)
+        
+        
+    def interact(self, prompt, max_tokens=16):
+        temperature=0
+        top_p=1.0
+        greedy=False
+        
+        generation_config = genai.types.GenerationConfig(temperature=temperature,top_p=top_p, max_output_tokens=max_tokens)
+        
+        max_attempt=50
+        attempt = 0
+        while attempt < max_attempt:
+            time.sleep(0.5)
+#             if '1.5' in self.model_name:
+#                 time.sleep(70)
+#             response = self.model.generate_content(prompt,generation_config=generation_config)
+            try:
+                response = self.model.generate_content(prompt,generation_config=generation_config)
+                res = response.text
+                break
+            except ValueError:
+                # If the response doesn't contain text, check if the prompt was blocked.
+                print(response.prompt_feedback)
+                try:
+                    # Also check the finish reason to see if the response was blocked.
+                    print(response.candidates[0].finish_reason)
+                    # If the finish reason was SAFETY, the safety ratings have more details.
+                    print(response.candidates[0].safety_ratings)
+                except:
+                    print()
+                time.sleep(10)
+                attempt += 1
+                continue
+            except KeyboardInterrupt:
+                raise Exception("KeyboardInterrupted!")
+            except Exception as e:
+                print(f"Exception: {e} - Sleep for 70 sec")
+                time.sleep(70)
+                attempt += 1
+                continue
+        if attempt == max_attempt:
+            if response:
+                try:
+                    return "no output: "+response.candidates[0].finish_reason
+                except:
+                    return "no output: " + response.prompt_feedback
+            else:
+                return "no output"
+        return res.strip()
 
 
 def post_preprocessing(output, test_dataset):
