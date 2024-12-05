@@ -181,7 +181,7 @@ def post_preprocessing(output, test_dataset):
         return 0
     elif 'B' in tmp or test_dataset['ans1'] in tmp:
         return 1
-    elif 'C' in tmp or test_dataset['ans3'] in tmp:
+    elif 'C' in tmp or test_dataset['ans2'] in tmp:
         return 2
     else:
         return 3
