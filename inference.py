@@ -113,7 +113,7 @@ def main():
             for input in tqdm(augment_dataset['llm_input']):
                 outputs.append(model.interact(input, max_tokens=16))
         elif 'llama' in m:
-            device=0
+            device=args.device
             pipeline, _ = llm_loading(m, device)
             for input in tqdm(augment_dataset['llm_input']):
                 messages=[{"role": "user", "content": input}] 
