@@ -1,21 +1,45 @@
-    
+# PROMPT={
+#     'Q1': ('Read the given context, and choose the correct answer to the question from options A, B, or C. Respond with a single alphabet.\n'
+#                      'Context: {context}\n'
+#                     'Question: {question}\n'
+#                     '{Option1}\n{Option2}\n{Option3}\n'
+#                     'Answer:'),
+#     'Q2': ('Answer the multiple choice question with a single letter.\n'
+#                 'Context: {context}\n'
+#                 'Question: {question}\n'
+#                 '{Option1}\n{Option2}\n{Option3}\n'
+#                 'Answer:'),
+#     'Q3': ('Question: {context} {question}\n'
+#                 '{Option1}\n{Option2}\n{Option3}\n'
+#                 'Answer:')
+#     }
 
-
-PROMPT={
+PROMPT = {
     'Q1': ('Read the given context, and choose the correct answer to the question from options A, B, or C. Respond with a single alphabet.\n'
-                     'Context: {context}\n'
-                    'Question: {question}\n'
-                    '{Option1}\n{Option2}\n{Option3}\n'
-                    'Answer:'),
+           'Context: {context}\n'
+           'Question: {question}\n'
+           '{Option1}\n{Option2}\n{Option3}\n'
+           'Answer:'),
     'Q2': ('Answer the multiple choice question with a single letter.\n'
+           'Context: {context}\n'
+           'Question: {question}\n'
+           '{Option1}\n{Option2}\n{Option3}\n'
+           'Answer:'),
+    'Q3': ('Question: {context} {question}\n'
+           '{Option1}\n{Option2}\n{Option3}\n'
+           'Answer:'),
+    'CRITIQUE': ('Analyze the following answer to the question based on the provided context. Identify any inaccuracies, biases, or areas lacking clarity.\n\n'
+                 'Context: {context}\n'
+                 'Question: {question}\n'
+                 'Answer: {answer}\n'
+                 'Critique:'),
+    'IMPROVE': ('Based on the critique provided, refine and improve the answer to ensure accuracy, clarity, and absence of biases.\n\n'
                 'Context: {context}\n'
                 'Question: {question}\n'
-                '{Option1}\n{Option2}\n{Option3}\n'
-                'Answer:'),
-    'Q3': ('Question: {context} {question}\n'
-                '{Option1}\n{Option2}\n{Option3}\n'
-                'Answer:')
-    }
+                'Answer: {answer}\n'
+                'Critique: {critique}\n'
+                'Improved Answer:')
+}
 
 MODEL_CARD={
     'T0_3B': 'bigscience/T0_3B',

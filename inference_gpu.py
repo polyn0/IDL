@@ -63,7 +63,9 @@ def prediction(m, model, tokenizer, dataloader, accelerator):
     for batch in tqdm(dataloader):
         
         with torch.inference_mode():
-            generated_tokens = model.module.generate(**batch, max_new_tokens=16) 
+            # generated_tokens = model.module.generate(**batch, max_new_tokens=16) 
+
+            generated_tokens = model.generate(**batch, max_new_tokens = 16)
 
             generated_tokens = accelerator.pad_across_processes(
                 generated_tokens, dim=1, pad_index=tokenizer.pad_token_id
@@ -107,6 +109,8 @@ def main():
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
 
+    os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+
     accelerator = Accelerator()
 
     final_acc=dict()
@@ -116,7 +120,6 @@ def main():
         test_dataset = test_dataset.sample(n=1000, random_state=seed, ignore_index=True)
 
     augment_test_dataset = get_llm_input(test_dataset, args.q_ver)
-
 
 
     augment_dataset = Dataset.from_pandas(augment_test_dataset)
