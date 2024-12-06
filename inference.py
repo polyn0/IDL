@@ -58,13 +58,14 @@ def get_llm_input(test_dataset, q):
 
 
 def argsparser():
-
     parser = argparse.ArgumentParser()
     parser.add_argument('--seed', type=int, default=1128)
-    parser.add_argument('--debug', type=bool, default=True)
+    parser.add_argument('--debug', action='store_true')
+    parser.add_argument('--device', type=int, default=1)
     parser.add_argument('--q_ver', type=str, default='1')
     parser.add_argument('--model_name_list', nargs='*', default=['gemini'])
     parser.add_argument('--batch_size', type=int, default=4)
+    parser.add_argument('--sample_n', type=int, default=20)
 
     
     args = parser.parse_args()
@@ -72,7 +73,7 @@ def argsparser():
 
 
 def main():
-    DEBUG=True
+    # DEBUG=True
 
     args = argsparser() 
 
@@ -89,9 +90,12 @@ def main():
 
     final_acc=dict()
 
-    test_dataset=pd.read_csv(f'./data/bbq.csv')
+    test_dataset=pd.read_csv(f'./data/bbq_sampled.csv')
     if DEBUG:
-        test_dataset = test_dataset.sample(n=1000, random_state=seed, ignore_index=True)
+        n = args.sample_n # default 20
+        d1 = test_dataset[test_dataset['context_condition']=='ambig'].sample(n=n//2, random_state=seed, ignore_index=True)
+        d2 = test_dataset[test_dataset['context_condition']=='disambig'].sample(n=n//2, random_state=seed, ignore_index=True)
+        test_dataset = pd.concat([d1, d2], ignore_index=True)
 
     augment_test_dataset = get_llm_input(test_dataset, args.q_ver)
 
@@ -102,12 +106,37 @@ def main():
 
     for m in args.model_name_list:
         print(f"{m} prediction start")
+        outputs=[]
+
         if 'gemini' == m:
             model = GeminiAgent(MODEL_CARD[m])
-            outputs=[]
-            for input in augment_dataset['llm_input']:
+            for input in tqdm(augment_dataset['llm_input']):
                 outputs.append(model.interact(input, max_tokens=16))
- 
+        elif 'llama' in m:
+            device=0
+            pipeline, _ = llm_loading(m, device)
+            for input in tqdm(augment_dataset['llm_input']):
+                messages=[{"role": "user", "content": input}] 
+
+                prompt = pipeline.tokenizer.apply_chat_template(
+                    messages, 
+                    tokenize=False, 
+                    add_generation_prompt=True
+                )
+                terminators = [
+                    pipeline.tokenizer.eos_token_id,
+                    pipeline.tokenizer.convert_tokens_to_ids("<|eot_id|>")
+                ]
+                output = pipeline(
+                    prompt,
+                    max_new_tokens=16,
+                    eos_token_id=terminators,
+                    do_sample=True,
+                    temperature=0.6,
+                    top_p=0.9,
+                    pad_token_id = pipeline.tokenizer.eos_token_id
+                )
+                outputs.append(output[0]["generated_text"][len(prompt):])
         results=post_processing_total(outputs, augment_test_dataset)            
         augment_test_dataset[f'{m}_outputs']=outputs
         augment_test_dataset[f'{m}_results']=results
