@@ -85,6 +85,8 @@ def argsparser():
     parser.add_argument('--q_ver', type=str, default='1')
     parser.add_argument('--model_name_list', nargs='*', default=['T0_3B'])
     parser.add_argument('--batch_size', type=int, default=4)
+    parser.add_argument('--sample_n', type=int, default=20)
+
 
     
     args = parser.parse_args()
@@ -113,7 +115,10 @@ def main():
 
     test_dataset=pd.read_csv(f'./data/bbq.csv')
     if DEBUG:
-        test_dataset = test_dataset.sample(n=1000, random_state=seed, ignore_index=True)
+        n = args.sample_n # default 20
+        d1 = test_dataset[test_dataset['context_condition']=='ambig'].sample(n=n//2, random_state=seed, ignore_index=True)
+        d2 = test_dataset[test_dataset['context_condition']=='disambig'].sample(n=n//2, random_state=seed, ignore_index=True)
+        test_dataset = pd.concat([d1, d2], ignore_index=True)
 
     augment_test_dataset = get_llm_input(test_dataset, args.q_ver)
 

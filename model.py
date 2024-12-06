@@ -40,6 +40,7 @@ def llm_loading_gpu(model_name, accelerator):
                 torch_dtype=torch.float32,
                 low_cpu_mem_usage=True,
             )
+            tokenizer.pad_token = tokenizer.eos_token
 
         elif 'gpt' in model_name:
             model = GPTNeoForCausalLM.from_pretrained(
@@ -53,14 +54,14 @@ def llm_loading_gpu(model_name, accelerator):
 
     return model, tokenizer
 
-def llm_loading(model_name, gpu_num):
+def llm_loading(model_name, device):
     MODEL = MODEL_CARD[model_name]
-    if 'llama3' in model_name:
+    if 'llama' in model_name:
         pipeline = transformers.pipeline(
             "text-generation",
             model=MODEL,
             model_kwargs={"torch_dtype": torch.bfloat16},
-            device_map=f"cuda:{gpu_num}",
+            device_map=device,
         )
         return pipeline, None
 
@@ -108,13 +109,18 @@ class GeminiAgent():
         GOOGLE_API_KEY=GEMINI_KEY
         genai.configure(api_key=GOOGLE_API_KEY)
 
-        safety_settings=[
-            {
-                "category": category,
-                "threshold": safety_types.HarmBlockThreshold.BLOCK_NONE,
-            } for category in safety_types._HARM_CATEGORIES 
-        ]
+        # safety_settings=[
+        #     {
+        #         "category": category,
+        #         "threshold": safety_types.HarmBlockThreshold.BLOCK_NONE,
+        #     } for category in safety_types._HARM_CATEGORIES 
+        # ]
 
+        safety_settings= [{"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+                    {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+                    {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+                    {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"}]
+        
         self.model = genai.GenerativeModel(model_name,safety_settings)
         
         
@@ -129,9 +135,9 @@ class GeminiAgent():
         attempt = 0
         while attempt < max_attempt:
             time.sleep(0.5)
-#             if '1.5' in self.model_name:
-#                 time.sleep(70)
-#             response = self.model.generate_content(prompt,generation_config=generation_config)
+            if '1.5' in self.model_name:
+                time.sleep(10)
+            response = self.model.generate_content(prompt,generation_config=generation_config)
             try:
                 response = self.model.generate_content(prompt,generation_config=generation_config)
                 res = response.text
