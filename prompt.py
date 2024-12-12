@@ -1,18 +1,4 @@
-# PROMPT={
-#     'Q1': ('Read the given context, and choose the correct answer to the question from options A, B, or C. Respond with a single alphabet.\n'
-#                      'Context: {context}\n'
-#                     'Question: {question}\n'
-#                     '{Option1}\n{Option2}\n{Option3}\n'
-#                     'Answer:'),
-#     'Q2': ('Answer the multiple choice question with a single letter.\n'
-#                 'Context: {context}\n'
-#                 'Question: {question}\n'
-#                 '{Option1}\n{Option2}\n{Option3}\n'
-#                 'Answer:'),
-#     'Q3': ('Question: {context} {question}\n'
-#                 '{Option1}\n{Option2}\n{Option3}\n'
-#                 'Answer:')
-#     }
+
 
 PROMPT = {
     'Q1': ('Read the given context, and choose the correct answer to the question from options A, B, or C. Respond with a single alphabet.\n'
@@ -20,14 +6,7 @@ PROMPT = {
            'Question: {question}\n'
            '{Option1}\n{Option2}\n{Option3}\n'
            'Answer:'),
-    'Q2': ('Answer the multiple choice question with a single letter.\n'
-           'Context: {context}\n'
-           'Question: {question}\n'
-           '{Option1}\n{Option2}\n{Option3}\n'
-           'Answer:'),
-    'Q3': ('Question: {context} {question}\n'
-           '{Option1}\n{Option2}\n{Option3}\n'
-           'Answer:'),
+
     'CRITIQUE': ('Analyze the following answer to the question based on the provided context. Identify any inaccuracies, biases, or areas lacking clarity.\n\n'
                  'Context: {context}\n'
                  'Question: {question}\n'
@@ -38,7 +17,13 @@ PROMPT = {
                 'Question: {question}\n'
                 'Answer: {answer}\n'
                 'Critique: {critique}\n'
-                'Improved Answer:')
+                'Improved Answer:'),
+    'cot': ('Read the given context, and choose the correct answer to the question from options A, B, or C.\n'
+           'Context: {context}\n'
+           'Question: {question}\n'
+           '{Option1}\n{Option2}\n{Option3}\n'
+           "Let/'s think step by step."),
+
 }
 
 MODEL_CARD={
@@ -49,8 +34,10 @@ MODEL_CARD={
     'llama2_7B': 'meta-llama/Llama-2-7b-hf', 
     'llama2_7B_chat': 'meta-llama/Llama-2-7b-chat-hf',
     'llama2_13B': 'meta-llama/Llama-2-13b-hf',
+    'llama2_13B_chat': 'meta-llama/Llama-2-13b-chat-hf',
     'llama3_8B': 'meta-llama/Meta-Llama-3-8B-Instruct',
     'llama3_8BX': 'meta-llama/Meta-Llama-3-8B',
+    'llama32_3B': 'meta-llama/Llama-3.2-3B-Instruct',
     'GPT3': 'text-davinci-002',
     'GPT3.5' : 'gpt-3.5-turbo-0125',
     'GPT4' : 'gpt-4-1106-preview',

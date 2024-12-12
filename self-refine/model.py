@@ -5,7 +5,6 @@ from openai import OpenAI
 import google.generativeai as genai
 from google.generativeai.types import safety_types
 import time
-from collections import Counter
 
 import re
 import logging
@@ -55,14 +54,14 @@ def llm_loading_gpu(model_name, accelerator):
 
     return model, tokenizer
 
-def llm_loading(model_name, device):
+def llm_loading(model_name, gpu_num):
     MODEL = MODEL_CARD[model_name]
-    if 'llama' in model_name:
+    if 'llama3' in model_name:
         pipeline = transformers.pipeline(
             "text-generation",
             model=MODEL,
             model_kwargs={"torch_dtype": torch.bfloat16},
-            device_map=device,
+            device_map=f"cuda:{gpu_num}",
         )
         return pipeline, None
 
@@ -86,6 +85,7 @@ def llm_loading(model_name, device):
             torch_dtype=torch.float32,
             low_cpu_mem_usage=True,
         )
+        tokenizer.pad_token = tokenizer.eos_token
 
     elif 'gpt' in model_name:
         model = GPTNeoForCausalLM.from_pretrained(
@@ -100,44 +100,7 @@ def llm_loading(model_name, device):
     return model, tokenizer
 
 
-def llama_generate(input, pipeline, max_new_tokens, temperature=0.1):
-    messages=[{"role": "user", "content": input}] 
 
-    prompt = pipeline.tokenizer.apply_chat_template(
-        messages, 
-        tokenize=False, 
-        add_generation_prompt=True
-    )
-    terminators = [
-        pipeline.tokenizer.eos_token_id,
-        pipeline.tokenizer.convert_tokens_to_ids("<|eot_id|>")
-    ]
-    output = pipeline(
-        prompt,
-        max_new_tokens=max_new_tokens,
-        eos_token_id=terminators,
-        do_sample=True,
-        temperature=temperature,
-        top_p=0.9,
-        pad_token_id = pipeline.tokenizer.eos_token_id
-    )
-    # import pdb;pdb.set_trace()
-    final = output[0]["generated_text"][len(prompt):]
-    final_index = final.find("[/INST]")
-    
-    if final_index != -1:
-        final = final[:final_index]
-    
-    return input, final
-
-def majority_vote(row):
-    # Extract values from the dictionary
-    values = list(row.values())
-    # Use Counter to count occurrences of each value
-    counter = Counter(values)
-    # Get the most common value
-    majority = counter.most_common(1)[0][0]
-    return majority
 
 class GeminiAgent():
     def __init__(self, model_name):
@@ -158,7 +121,7 @@ class GeminiAgent():
                     {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
                     {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
                     {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"}]
-        
+
         self.model = genai.GenerativeModel(model_name,safety_settings)
         
         
@@ -173,9 +136,9 @@ class GeminiAgent():
         attempt = 0
         while attempt < max_attempt:
             time.sleep(0.5)
-            if '1.5' in self.model_name:
-                time.sleep(1.5)
-            response = self.model.generate_content(prompt,generation_config=generation_config)
+#             if '1.5' in self.model_name:
+#                 time.sleep(70)
+#             response = self.model.generate_content(prompt,generation_config=generation_config)
             try:
                 response = self.model.generate_content(prompt,generation_config=generation_config)
                 res = response.text
@@ -212,14 +175,22 @@ class GeminiAgent():
 
 
 def post_preprocessing(output, test_dataset):
-    if "Answer" in output:
-        output=output[len(test_dataset["llm_input"]):]
-        output_list=re.split(r'\n', output)
-        output_list = [i for i in output_list if i not in ['', ' ']]
-    else:
-        output_list=[output]    
+    # print(f'output:{output}')
+    output = output.lstrip(r"Answer")
+    # if test_dataset.context in output:
+    #     answer=output[len(test_dataset["llm_input"]):]
+    #     output_list=re.split(r'\n', output)
+    #     output_list = [i for i in output_list if i not in ['', ' ']]
+    # else:
+    #     output_list=[output]    
     
-    tmp = output_list[0] if len(output_list)!=0 else ''
+    # tmp = output_list[0] if len(output_list)!=0 else ''
+
+    answer = output[len(test_dataset["llm_input"]):] if test_dataset.context in output else output
+    answer_list = re.split(r'\n', answer)
+    answer_list = [i for i in answer_list if i not in ['', ' ']]
+    tmp = answer_list[0] if len(answer_list)!=0 else ''
+    # print(answer_list)
 
     if 'A' in tmp or test_dataset['ans0'] in tmp:
         return 0

@@ -8,8 +8,6 @@ def argsparser():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--model_name_list', nargs='*', default=['T0_3B'])
-    parser.add_argument('--output_path', type=str, default='./results/zero-shot/')
-
     # parser.add_argument('--batch_size', type=int, default=4)
 
     
@@ -65,12 +63,11 @@ def calculate_bias_score(ambig, disambig, llm):
 def main():
     args = argsparser()
     llms = args.model_name_list
-    import pdb;pdb.set_trace()
 
     result_df = pd.DataFrame(columns=['model', 'acc', 'acc_ambig', 'acc_disambig', 'bias_ambig', 'bias_disambig'])
 
     for llm in llms:
-        llm_df = pd.read_csv(f'{args.output_path}/{llm}.csv')
+        llm_df = pd.read_csv(f'./results/{llm}.csv')
         df_ambig = llm_df[llm_df['context_condition']=='ambig']
         df_disambig = llm_df[llm_df['context_condition']=='disambig']
 
@@ -82,7 +79,7 @@ def main():
                     acc_ambig: {acc_ambig}, acc_disambig: {acc_disambig}\n\
                     bias score_ambig: {bias_ambig}, bias score_disambig: {bias_disambig}')
         
-    result_df.to_csv(f"{args.output_path}/eval_{'_'.join(llms)}.csv", index=False)
+    result_df.to_csv(f"./results/eval_{'_'.join(llms)}.csv", index=False)
 
 if __name__=='__main__':
     main()

@@ -5,6 +5,8 @@ personal.py
 /data/*
 !data/bbq.csv
 
+
+/self-refine/IDL 3/
 /results
 # /data
 /before
