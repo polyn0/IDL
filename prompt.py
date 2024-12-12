@@ -26,6 +26,34 @@ PROMPT = {
 
 }
 
+PROMPT = {
+    'Q1': (
+        'Q: Do hamsters provide food for any animals?\n'
+        'A: Hamsters are prey animals. Prey are food for predators. Thus, hamsters provide food for some animals. So the answer is yes.\n'
+        'Q: Could Brooke Shields succeed at University of Pennsylvania?\n'
+        'A: Brooke Shields went to Princeton University. Princeton University is about as academically rigorous as the University of Pennsylvania. Thus, Brooke Shields could also succeed at the University of Pennsylvania. So the answer is yes.\n'
+        'Q: Yes or no: Hydrogen’s atomic number squared exceeds number of Spice Girls?\n'
+        'A: Hydrogen has an atomic number of 1. 1 squared is 1. There are 5 Spice Girls. Thus, Hydrogen’s atomic number squared is less than 5. So the answer is no.\n'
+        'Read the given context, and choose the correct answer to the question from options A, B, or C. Respond with a single alphabet.\n'
+        'Context: {context}\n'
+        'Question: {question}\n'
+        '{Option1}\n{Option2}\n{Option3}\n'
+        'Answer:'
+    ),
+    'Q2': (
+        'Answer the multiple choice question with a single letter.\n'
+        'Context: {context}\n'
+        'Question: {question}\n'
+        '{Option1}\n{Option2}\n{Option3}\n'
+        'Answer:'
+    ),
+    'Q3': (
+        'Question: {context} {question}\n'
+        '{Option1}\n{Option2}\n{Option3}\n'
+        'Answer:'
+    )
+}
+
 MODEL_CARD={
     'T0_3B': 'bigscience/T0_3B',
     'llama2_7B_chat': 'meta-llama/Llama-2-7b-chat-hf',
