@@ -230,25 +230,3 @@ def post_preprocessing(output, test_dataset):
     else:
         return 3
 
-
-def post_preprocessing2(output, test_dataset, i):
-    if "Answer" in output:
-        output=output[len(test_dataset["llm_input"][i]):]
-        output_list=re.split(r'\n', output)
-        output_list = [i for i in output_list if i not in ['', ' ']]
-    else:
-        output_list=[output]    
-    
-    if len(output_list)!=0:
-        tmp=output_list[0]
-    else:
-        tmp=''
-        
-    if 'A' in tmp or test_dataset['option1'][i] in tmp:
-        return 0
-    elif 'B' in tmp or test_dataset['option2'][i] in tmp:
-        return 1
-    elif 'C' in tmp or test_dataset['option3'][i] in tmp:
-        return 2
-    else:
-        return 3
